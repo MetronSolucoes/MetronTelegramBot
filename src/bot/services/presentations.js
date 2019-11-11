@@ -3,13 +3,14 @@ const auth_token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE1NjgxNTU0OTR
 
 exports.verifyPresentations = async (request) => {
   var presentations = ['Olá', 'ola', 'Ola', 'olá',
-  'oie', 'eae', 'Eae', 'Opa', 'Oi', 'oi', 'oii', 'Como vai?', 'Preciso de ajuda']
+  'oie', 'eae', 'Eae', 'Opa', 'Oi', 'oi', 'oii', 'Como vai?', 'Preciso de ajuda', 'ajuda', 'Ajuda']
   
   var message = request.text
 
   var contains_presentations = false
 
   presentations.forEach(function(word) {
+    if (contains_presentations === 1) return
     contains_presentations = contains_presentations + message.includes(word)
   })
 
@@ -17,7 +18,9 @@ exports.verifyPresentations = async (request) => {
     var company = await getCompany()
 
     return presentation_message = (`Olá ${request.from.first_name}, sou o Metron, seu assistente pessoal
-    do estabelecimento ${company.name}`)
+    do estabelecimento ${company.name}. \n
+    Eu poderei te ajudar com: \n
+    - Listagem de serviços, digite o comando: Liste os serviços`)
   }
 
   return ''

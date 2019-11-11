@@ -2,7 +2,8 @@ const axios = require('axios')
 const auth_token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE1NjgxNTU0OTR9.oDgeY2Tbr6eeKStrHG2_t0Y7oCfl_6JBhidCBbn5qzs'
 
 exports.verifyServices = async (request) => {
-  let services_regex = ['Serviço', 'Serviços', 'servico', 'serviços', 'Servico',
+
+  let services_regex = ['serviços', 'Serviço', 'Serviços', 'servico', 'Servico',
   'serviço']
   
   var message = request.text
@@ -10,6 +11,7 @@ exports.verifyServices = async (request) => {
   var contains_services = false
 
   services_regex.forEach(function(word) {
+    if (contains_services === 1) return
     contains_services = contains_services + message.includes(word)
   })
 
@@ -18,7 +20,7 @@ exports.verifyServices = async (request) => {
     
     services = await getServices().then(response => {
       response.forEach(function(service) {
-        services = services + service.name + '\n'
+        services = services + '- ' + service.name + '\n'
       })
       return services
     })
