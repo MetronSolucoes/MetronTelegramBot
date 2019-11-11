@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/wlices/Metron-AIBot#readme",
   "dependencies": {
+    "axios": "^0.16.2",
     "express": "^4.17.1",
     "telebot": "^1.2.6"
   }
