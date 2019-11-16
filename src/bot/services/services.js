@@ -1,32 +1,35 @@
 const axios = require('axios')
 const auth_token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE1NjgxNTU0OTR9.oDgeY2Tbr6eeKStrHG2_t0Y7oCfl_6JBhidCBbn5qzs'
 
-exports.verifyServices = async (request) => {
-  let services_regex = ['Serviço', 'Serviços', 'servico', 'serviços', 'Servico',
-  'serviço']
-  
-  var message = request.text
+exports.chooseService = async (request) => {
+  var message = request.text.toUpperCase()
 
-  var contains_services = false
+  var contains_choose = false
+  var contain_service = false
+  var selectedService = ''
 
-  services_regex.forEach(function(word) {
-    contains_services = contains_services + message.includes(word)
+  var services = await getServices()
+
+  services.forEach((service) => {
+    if (contain_service === 1) return
+    if (message.endsWith(service.id.toString())) {
+      contain_service = 1
+      db.rm('service')
+      db.set('service', { selected: service } )
+      selectedService = `Você selecionou o serviço de Nº ${service.id} - ${service.name} \n
+Agora digite o dia e o período que deseja realizar o serviço no formato dd/mm/YYYY, Por exemplo: Quero realizar o serviço '01/01/2001'`  
+    }
   })
 
-  if (contains_services === 1) {
-    var services = 'Estes são os serviços disponíveis: \n'
-    
-    services = await getServices().then(response => {
-      response.forEach(function(service) {
-        services = services + service.name + '\n'
-      })
-      return services
-    })
+  services_regex.forEach(function(word) {
+    if (contains_choose === 1) return
+    contains_choose = contains_choose + message.includes(word)
+  })
 
-    return services
-  }
+  if (contains_choose === 1 && contain_service === 1) return selectedService
 
   return ''
+
 }
 
 async function getServices () {

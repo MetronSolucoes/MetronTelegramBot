@@ -27,6 +27,16 @@ Metron.on('text', async (msg) => {
         return response
     })
 
+    var services_select = await Services.chooseService(msg).then(response => {
+        return response
+    })
+
+    var disponible_schedule = await Schedules.verifySchedules(msg)
+ 
+    if (disponible_schedule !== '') return msg.reply.text(disponible_schedule)
+
+    if (services_select !== '') return msg.reply.text(services_select)
+
     if (services_message !== '') { message_return = true }
 
     if (message_return === true) { return msg.reply.text(presentation_message + services_message + hours_message) }
