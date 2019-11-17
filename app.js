@@ -3,17 +3,27 @@ const Metron = new TeleBot('806036577:AAHpC502B_acOm65-B2l-SXmtWecdzaZqIc')
 const Presentations = require('./src/bot/services/presentations')
 const Services = require('./src/bot/services/services')
 const Schedules = require('./src/bot/services/schedules')
+const dirty = require('dirty')
+const db = dirty('user.db')
 
 Metron.start()
 
 Metron.on('text', async (msg) => {
     var message = msg.text
-
     let contains_list_hours = false
 
     let message_return = false
 
     var hours_message = ''
+
+    var confirm_schedule = await Schedules.doSchedule(msg)
+
+    var setHours = await Schedules.setHours(msg)
+
+    if (setHours !== '') return msg.reply.text(setHours)
+    
+
+    if (confirm_schedule !== '') return msg.reply.text(confirm_schedule)
 
     var presentation_message = await Presentations.verifyPresentations(msg)
 
@@ -32,7 +42,7 @@ Metron.on('text', async (msg) => {
     })
 
     var disponible_schedule = await Schedules.verifySchedules(msg)
- 
+    
     if (disponible_schedule !== '') return msg.reply.text(disponible_schedule)
 
     if (services_select !== '') return msg.reply.text(services_select)

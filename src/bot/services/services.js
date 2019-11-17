@@ -1,5 +1,9 @@
 const axios = require('axios')
 const auth_token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE1NjgxNTU0OTR9.oDgeY2Tbr6eeKStrHG2_t0Y7oCfl_6JBhidCBbn5qzs'
+const dirty = require('dirty')
+const db = dirty('user.db')
+
+const services_regex = ['SERVIÇO', 'SERVICO', 'SERVIÇOS', 'SERVICOS']
 
 exports.chooseService = async (request) => {
   var message = request.text.toUpperCase()
@@ -7,17 +11,18 @@ exports.chooseService = async (request) => {
   var contains_choose = false
   var contain_service = false
   var selectedService = ''
+  var selectedObject = ''
 
   var services = await getServices()
 
   services.forEach((service) => {
     if (contain_service === 1) return
+
     if (message.endsWith(service.id.toString())) {
       contain_service = 1
-      db.rm('service')
-      db.set('service', { selected: service } )
+      selectedObject = service
       selectedService = `Você selecionou o serviço de Nº ${service.id} - ${service.name} \n
-Agora digite o dia e o período que deseja realizar o serviço no formato dd/mm/YYYY, Por exemplo: Quero realizar o serviço '01/01/2001'`  
+Agora digite o dia que deseja realizar o serviço no formato dd/mm/YYYY, Por exemplo: 'Horarios do dia 01/01/2001'`  
     }
   })
 
@@ -26,8 +31,36 @@ Agora digite o dia e o período que deseja realizar o serviço no formato dd/mm/
     contains_choose = contains_choose + message.includes(word)
   })
 
-  if (contains_choose === 1 && contain_service === 1) return selectedService
+  if (contains_choose === 1 && contain_service === 1) {
+    db.set('service', { selected: selectedObject })
+    return selectedService
+  }
+  return ''
+}
 
+exports.verifyServices = async (request) => {
+  
+  var message = request.text.toUpperCase()
+
+  var contains_services = false
+
+  services_regex.forEach(function(word) {
+    if (contains_services === 1) return
+    contains_services = contains_services + message.includes(word)
+  })
+
+  if (contains_services === 1) {
+    var services = 'Estes são os serviços disponíveis: \n'
+    
+    services = await getServices().then(response => {
+      response.forEach(function(service) {
+        services = services + service.id + '- ' + service.name + '\n'
+      })
+      return services 
+    })
+
+    return services + 'Para escolher um serviço digete: Quero realizar o serviço Nº do serviço'
+  }
   return ''
 
 }
